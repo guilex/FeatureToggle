@@ -1,38 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>FeatureToggle by JoshuaEstes</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-    <title>FeatureToggle by JoshuaEstes</title>
   </head>
-
   <body>
-    <header>
-      <div class="inner">
+    <div class="wrapper">
+      <header class="without-description">
         <h1>FeatureToggle</h1>
-        <h2></h2>
-        <a href="https://github.com/JoshuaEstes/FeatureToggle" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
-
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>
+        <p></p>
+        <p class="view"><a href="https://github.com/JoshuaEstes/FeatureToggle">View the Project on GitHub <small>JoshuaEstes/FeatureToggle</small></a></p>
+        <ul>
+          <li><a href="https://github.com/JoshuaEstes/FeatureToggle/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/JoshuaEstes/FeatureToggle/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/JoshuaEstes/FeatureToggle">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
 <a name="joshuaestesfeature-toggle" class="anchor" href="#joshuaestesfeature-toggle"><span class="octicon octicon-link"></span></a>joshuaestes/feature-toggle</h1>
 
-<p>This is just a small proof of concept that can be used
-to create feature toggles.</p>
+<p><a href="https://travis-ci.org/JoshuaEstes/FeatureToggle"><img src="https://travis-ci.org/JoshuaEstes/FeatureToggle.png?branch=master" alt="Build Status"></a></p>
+
+<p>This library allows you to easily add and modify various features to your code
+while in development. Please read the information below on instructions on how
+to use this library as well as how to customize and add to it for your own needs.</p>
+
+<h1>
+<a name="concepts" class="anchor" href="#concepts"><span class="octicon octicon-link"></span></a>Concepts</h1>
+
+<ul>
+<li>
+<strong>Features</strong> are all unique and allows you to enable or disable each feature.</li>
+<li>
+<strong>Toggles</strong> are the logic behind whether a feature is enabled or not.</li>
+<li>
+<strong>Repositories</strong> allow you to persist features.</li>
+</ul><h1>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h1>
+
+<p>To install, just add to your <code>composer.json</code> file.</p>
+
+<pre><code>"require": {
+    "joshuaestes/feature-toggle": "~0.1"
+},
+</code></pre>
 
 <h1>
 <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
@@ -53,13 +75,13 @@ feature. You are able to do this two different ways.</p>
 
 <pre><code>use JoshuaEstes\Component\FeatureToggle\Toggle\FeatureToggleGeneric;
 
-$feature = new Feature('enable_a_cool_new_feature', new FeatureToggleGeneric(true));
+$feature = new Feature('enable_a_cool_new_feature', new FeatureToggleGeneric(array('enabled'=&gt;true)));
 </code></pre>
 
 <p>This will now enabled the feature, when you call <code>isEnabled()</code> it will return <code>true</code>. The
 other way to enable a feature is like so:</p>
 
-<pre><code>$feature-&gt;setToggle(new FeatureToggleGeneric(true));
+<pre><code>$feature-&gt;setToggle(new FeatureToggleGeneric(array('enabled'=&gt;true)));
 </code></pre>
 
 <h1>
@@ -67,53 +89,85 @@ other way to enable a feature is like so:</p>
 
 <p>Various toggles can be created to allow enable or disable based on various
 other conditions such as IP address, username, or anything else that you want
-to make. It must implement <code>JoshuaEstes\Component\FeatureToggle\Toggle\FeatureToggleGeneric</code>.</p>
+to make. It must implement <code>JoshuaEstes\Component\FeatureToggle\Toggle\FeatureToggleInterface</code>.</p>
 
 <h1>
-<a name="feature-bag" class="anchor" href="#feature-bag"><span class="octicon octicon-link"></span></a>Feature Bag</h1>
+<a name="feature-container" class="anchor" href="#feature-container"><span class="octicon octicon-link"></span></a>Feature Container</h1>
 
-<p>Now you can place your features in a bag!</p>
+<p>The feature container is used to put all your features into one place where you
+can easily loop through them.</p>
 
-<pre><code>use JoshuaEstes\Component\FeatureToggle\FeatureBag;
+<pre><code>use JoshuaEstes\Component\FeatureToggle\FeatureContainer;
 use JoshuaEstes\Component\FeatureToggle\Feature;
 
-$bag     = new FeatureBag();
-$feature = new Feature('enable_a_cool_new_feature');
+$container = new FeatureContainer();
+$feature   = new Feature('enable_a_cool_new_feature');
 
-$bag-&gt;addFeature($feature);
+$container-&gt;addFeature($feature);
 
-$coolNewFeature = $bag-&gt;getFeature('enable_a_cool_new_feature');
+$coolNewFeature = $container-&gt;getFeature('enable_a_cool_new_feature');
 
-$thisIsNull = $bag-&gt;getFeature('does_not_compute');
+$thisIsNull = $container-&gt;getFeature('does_not_compute');
 
-$thisIsFalse = $bag-&gt;hasFeature('enable_that_sweet_new_feature');
-$thisIsTrue  = $bag-&gt;hasFeature('enable_a_cool_new_feature');
+$thisIsFalse = $container-&gt;hasFeature('enable_that_sweet_new_feature');
+$thisIsTrue  = $container-&gt;hasFeature('enable_a_cool_new_feature');
+
+$numberOfFeatures = count($container);
+
+foreach ($container as $f) {
+    // @var FeatureInterface $f
+    var_dump($f-&gt;isEnabled());
+}
 </code></pre>
 
+<p>You can read the source code for more methods that you can call, such as
+<code>removeFeature</code> and <code>clearFeatures</code>.</p>
+
 <h1>
+<a name="creating-custom-features" class="anchor" href="#creating-custom-features"><span class="octicon octicon-link"></span></a>Creating Custom Features</h1>
+
+<p>All features must implement the <a href="https://github.com/JoshuaEstes/FeatureToggle/blob/master/src/JoshuaEstes/Component/FeatureToggle/FeatureInterface.php">FeatureInterface</a>.</p>
+
+<p>In most situations you will only need to use the default <code>Feature</code>, however in
+some situations you might want to create your own.</p>
+
+<h1>
+<a name="creating-custom-toggles" class="anchor" href="#creating-custom-toggles"><span class="octicon octicon-link"></span></a>Creating Custom Toggles</h1>
+
+<p>All toggles must implement the <a href="https://github.com/JoshuaEstes/FeatureToggle/blob/master/src/JoshuaEstes/Component/FeatureToggle/Toggle/FeatureToggleInterface.php">FeatureToggleInterface</a>.</p>
+
+<p>By creating a custom toggle, you can change the logic for figuring out if a
+feature is enable or not. Some ideas for custom toggles include:</p>
+
+<ul>
+<li>IP Based, can enable a feature if the user is on an internal network.</li>
+<li>Username, or something similar.</li>
+<li>Collection, a collection of toggles where it checks for any or all to be enable.</li>
+<li>Gradual, where you can release a feature to x% of a user base.</li>
+</ul><h1>
+<a name="creating-custom-repository" class="anchor" href="#creating-custom-repository"><span class="octicon octicon-link"></span></a>Creating Custom Repository</h1>
+
+<p>All toggles must implement the <a href="https://github.com/JoshuaEstes/FeatureToggle/blob/master/src/JoshuaEstes/Component/FeatureToggle/Repository/RepositoryInterface.php">RepositoryInterface</a>.</p>
+
+<p>Creating custom repositories allow you to store the states of the features
+in anything from a database to a flat file store. Some ideas are:</p>
+
+<ul>
+<li>MySQL</li>
+<li>MongoDB</li>
+<li>SQLite</li>
+</ul><h1>
 <a name="testing" class="anchor" href="#testing"><span class="octicon octicon-link"></span></a>Testing</h1>
 
 <pre><code>php vendor/bin/phing -f build/build.xml phpunit
 </code></pre>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/JoshuaEstes/FeatureToggle/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/JoshuaEstes/FeatureToggle/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/JoshuaEstes/FeatureToggle"></a> is maintained by <a href="https://github.com/JoshuaEstes">JoshuaEstes</a>.</p>
-
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
     </div>
-
-  
+    <footer>
+      <p>Project maintained by <a href="https://github.com/JoshuaEstes">JoshuaEstes</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
   </body>
 </html>
