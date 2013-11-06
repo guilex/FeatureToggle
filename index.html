@@ -59,9 +59,10 @@ to use this library as well as how to customize and add to it for your own needs
 <h1>
 <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
 
-<pre><code>use JoshuaEstes\Component\FeatureToggle\Feature;
+<pre><code>use JoshuaEstes\Component\FeatureToggle\FeatureBuilder;
 
-$feature = new Feature('enable_a_cool_new_feature');
+$feature = FeatureBuilder::create('enable_a_cool_new_feature')
+    -&gt;getFeature();
 
 if ($feature-&gt;isEnabled()) {
     // code for when the feature is enabled
@@ -75,21 +76,31 @@ feature. You are able to do this two different ways.</p>
 
 <pre><code>use JoshuaEstes\Component\FeatureToggle\Toggle\FeatureToggleGeneric;
 
-$feature = new Feature('enable_a_cool_new_feature', new FeatureToggleGeneric(array('enabled'=&gt;true)));
+$feature = FeatureBuilder::create('enable_a_cool_new_feature')
+    -&gt;setToggle(
+        new FeatureToggleGeneric(
+            array(
+                'enabled' =&gt; true
+            )
+        )
+    )
+    -&gt;getFeature();
 </code></pre>
 
 <p>This will now enabled the feature, when you call <code>isEnabled()</code> it will return <code>true</code>. The
 other way to enable a feature is like so:</p>
 
-<pre><code>$feature-&gt;setToggle(new FeatureToggleGeneric(array('enabled'=&gt;true)));
+<pre><code>$feature = FeatureBuilder::create('enable_a_cool_new_feature')
+    -&gt;getFeature();
+
+$feature-&gt;setToggle(
+    new FeatureToggleGeneric(
+        array(
+            'enabled' =&gt; true
+        )
+    )
+);
 </code></pre>
-
-<h1>
-<a name="toggles" class="anchor" href="#toggles"><span class="octicon octicon-link"></span></a>Toggles</h1>
-
-<p>Various toggles can be created to allow enable or disable based on various
-other conditions such as IP address, username, or anything else that you want
-to make. It must implement <code>JoshuaEstes\Component\FeatureToggle\Toggle\FeatureToggleInterface</code>.</p>
 
 <h1>
 <a name="feature-container" class="anchor" href="#feature-container"><span class="octicon octicon-link"></span></a>Feature Container</h1>
@@ -101,7 +112,8 @@ can easily loop through them.</p>
 use JoshuaEstes\Component\FeatureToggle\Feature;
 
 $container = new FeatureContainer();
-$feature   = new Feature('enable_a_cool_new_feature');
+$feature = FeatureBuilder::create('enable_a_cool_new_feature')
+    -&gt;getFeature();
 
 $container-&gt;addFeature($feature);
 
@@ -144,7 +156,62 @@ feature is enable or not. Some ideas for custom toggles include:</p>
 <li>Username, or something similar.</li>
 <li>Collection, a collection of toggles where it checks for any or all to be enable.</li>
 <li>Gradual, where you can release a feature to x% of a user base.</li>
-</ul><h1>
+</ul><h2>
+<a name="creating-a-custom-toggle-based-on-username" class="anchor" href="#creating-a-custom-toggle-based-on-username"><span class="octicon octicon-link"></span></a>Creating a custom toggle based on username</h2>
+
+<p>You can create a custom feature toggle with ease.</p>
+
+<pre><code>use JoshuaEstes\Component\FeatureToggle\Toggle\FeatureToggle;
+use JoshuaEstes\Component\FeatureToggle\FeatureInterface;
+
+class FeatureToggleUsername extends FeatureToggle
+{
+    protected $user;
+
+    public function setUser($user)
+    {
+        $this-&gt;user = $user;
+    }
+
+    protected function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver-&gt;setRequired(
+            array(
+                'username'
+            )
+        );
+    }
+
+    public function isEnabled(FeatureInterface $feature)
+    {
+        return $this-&gt;options['username'] == $this-&gt;user-&gt;getUsername();
+    }
+}
+</code></pre>
+
+<p>Now that we have the toggle, we just need to create the toggle and assign it to
+a feature object.</p>
+
+<pre><code>use JoshuaEstes\Component\FeatureToggle\FeatureBuilder;
+
+$toggle = new FeatureToggleUsername(
+    array(
+        'username' =&gt; 'joshua',
+    )
+);
+$toggle-&gt;setUser($user);
+
+$feature = FeatureBuilder::create('enable_for_joshua')
+    -&gt;setToggle($toggle)
+    -&gt;getFeature();
+</code></pre>
+
+<p>That's all there is to it! Note that the <code>$user</code> variable needs to be
+defined and must have a method <code>getUsername</code>. This feature will return true
+only for the user with the username <code>joshua</code> and will return false for
+all other users.</p>
+
+<h1>
 <a name="creating-custom-repository" class="anchor" href="#creating-custom-repository"><span class="octicon octicon-link"></span></a>Creating Custom Repository</h1>
 
 <p>All toggles must implement the <a href="https://github.com/JoshuaEstes/FeatureToggle/blob/master/src/JoshuaEstes/Component/FeatureToggle/Repository/RepositoryInterface.php">RepositoryInterface</a>.</p>
